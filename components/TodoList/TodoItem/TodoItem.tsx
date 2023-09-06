@@ -17,13 +17,14 @@ const TodoItem: FC<TodoItemProps> = ({ task, onDeleteTask }) => {
     <View style={styles.container}>
       <View style={styles.taskContainer}>
         <View style={styles.squareIcon}></View>
-        <Text>{task}</Text>
+        <View style={styles.taskTextContainer}>
+          <Text>{task}</Text>
+        </View>
       </View>
       <Pressable
         style={styles.circularIcon}
         onPress={deleteTaskHandler}
-      >
-      </Pressable>
+      />
     </View>
   );
 };
@@ -41,7 +42,10 @@ const styles = StyleSheet.create({
   taskContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap'
+  },
+  taskTextContainer: {
+    flex: 1,
+    maxWidth: '80%'
   },
   squareIcon: {
     width: 24,
