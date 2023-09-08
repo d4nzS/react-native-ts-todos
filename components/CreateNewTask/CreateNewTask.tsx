@@ -1,7 +1,9 @@
-import { FC, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FC, useEffect, useState } from 'react';
+import { DimensionValue, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import Colors from '../../constants/colors';
+import { LAYOUT_PADDING_HORIZONTAL } from './constants';
 
 interface CreateNewTaskProps {
   onCreateTask: (task: string) => void;
@@ -9,6 +11,26 @@ interface CreateNewTaskProps {
 
 const CreateNewTask: FC<CreateNewTaskProps> = ({ onCreateTask }) => {
   const [task, setTask] = useState<string>('');
+  const inputWidth = useSharedValue<DimensionValue>('100%');
+  const buttonLeftOffset = useSharedValue<DimensionValue>(LAYOUT_PADDING_HORIZONTAL);
+
+  useEffect(() => {
+    if (task.length) {
+      inputWidth.value = withSpring('75%');
+      buttonLeftOffset.value = withSpring(0);
+    } else {
+      inputWidth.value = withSpring('100%');
+      buttonLeftOffset.value = withSpring(LAYOUT_PADDING_HORIZONTAL);
+    }
+  }, [task]);
+
+  const animatedInputStyles = useAnimatedStyle(() => ({
+    width: inputWidth.value
+  }));
+
+  const animatedButtonStyles = useAnimatedStyle(() => ({
+    left: buttonLeftOffset.value
+  }));
 
   const changeTaskTextInputHandler = (text: string): void => {
     setTask(text);
@@ -24,18 +46,20 @@ const CreateNewTask: FC<CreateNewTaskProps> = ({ onCreateTask }) => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Write a task"
-        placeholderTextColor={Colors.PRIMARY}
-        style={styles.input}
-        value={task}
-        onChangeText={changeTaskTextInputHandler}
-      />
-      <View style={styles.buttonContainer}>
+      <Animated.View style={animatedInputStyles}>
+        <TextInput
+          placeholder="Write a task"
+          placeholderTextColor={Colors.PRIMARY}
+          style={styles.input}
+          value={task}
+          onChangeText={changeTaskTextInputHandler}
+        />
+      </Animated.View>
+      <Animated.View style={[styles.buttonContainer, animatedButtonStyles]}>
         <Pressable onPress={createNewTaskHandler}>
           <Text style={styles.buttonText}>Add</Text>
         </Pressable>
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -47,13 +71,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     position: 'absolute',
     bottom: 60,
-    left: 20,
-    right: 20
+    left: LAYOUT_PADDING_HORIZONTAL,
+    right: LAYOUT_PADDING_HORIZONTAL
   },
   input: {
     textAlign: 'center',
     backgroundColor: Colors.SECONDARY,
-    width: 250,
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderColor: Colors.PRIMARY,
@@ -68,7 +91,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 60,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    position: 'relative'
   },
   buttonText: {
     color: Colors.PRIMARY,
