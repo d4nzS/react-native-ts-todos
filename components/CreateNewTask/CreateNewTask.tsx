@@ -1,9 +1,8 @@
-import { FC, useEffect, useState } from 'react';
-import { DimensionValue, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { FC, useEffect, useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import Colors from '../../constants/colors';
-import { LAYOUT_PADDING_HORIZONTAL } from './constants';
+import { LAYOUT_PADDING_HORIZONTAL, LAYOUT_WIDTH_WITHOUT_PADDINGS } from './constants';
 
 interface CreateNewTaskProps {
   onCreateTask: (task: string) => void;
@@ -11,26 +10,30 @@ interface CreateNewTaskProps {
 
 const CreateNewTask: FC<CreateNewTaskProps> = ({ onCreateTask }) => {
   const [task, setTask] = useState<string>('');
-  const inputWidth = useSharedValue<DimensionValue>('100%');
-  const buttonLeftOffset = useSharedValue<DimensionValue>(LAYOUT_PADDING_HORIZONTAL);
+  const inputWidth =  useRef(new Animated.Value(LAYOUT_WIDTH_WITHOUT_PADDINGS)).current;
+  const buttonLeftOffset = useRef(new Animated.Value(LAYOUT_PADDING_HORIZONTAL)).current;
 
   useEffect(() => {
     if (task.length) {
-      inputWidth.value = withSpring('75%');
-      buttonLeftOffset.value = withSpring(0);
+      Animated.spring(inputWidth, {
+        toValue: 0.75 * LAYOUT_WIDTH_WITHOUT_PADDINGS,
+        useNativeDriver: false,
+      }).start();
+      Animated.spring(buttonLeftOffset, {
+        toValue: 0,
+        useNativeDriver: false,
+      }).start();
     } else {
-      inputWidth.value = withSpring('100%');
-      buttonLeftOffset.value = withSpring(LAYOUT_PADDING_HORIZONTAL);
+      Animated.spring(inputWidth, {
+        toValue: LAYOUT_WIDTH_WITHOUT_PADDINGS,
+        useNativeDriver: false,
+      }).start();
+      Animated.spring(buttonLeftOffset, {
+        toValue: LAYOUT_PADDING_HORIZONTAL,
+        useNativeDriver: false,
+      }).start();
     }
   }, [task]);
-
-  const animatedInputStyles = useAnimatedStyle(() => ({
-    width: inputWidth.value
-  }));
-
-  const animatedButtonStyles = useAnimatedStyle(() => ({
-    left: buttonLeftOffset.value
-  }));
 
   const changeTaskTextInputHandler = (text: string): void => {
     setTask(text);
@@ -42,6 +45,14 @@ const CreateNewTask: FC<CreateNewTaskProps> = ({ onCreateTask }) => {
 
       setTask('');
     }
+  };
+
+  const animatedInputStyles = {
+    width: inputWidth
+  };
+
+  const animatedButtonStyles = {
+    left: buttonLeftOffset
   };
 
   return (
