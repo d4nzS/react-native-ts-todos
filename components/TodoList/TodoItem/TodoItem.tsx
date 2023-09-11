@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import Colors from '../../../constants/colors';
+import { TODO_ITEM_HEIGHT } from './constants';
 
 interface TodoItemProps {
   task: string;
@@ -32,12 +33,13 @@ const TodoItem: FC<TodoItemProps> = ({ task, onDeleteTask }) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.SECONDARY,
+    height: TODO_ITEM_HEIGHT,
     padding: 15,
     borderRadius: 10,
+    marginBottom: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
   },
   taskContainer: {
     flexDirection: 'row',
