@@ -11,8 +11,8 @@ interface CreateNewTaskProps {
 
 const CreateNewTask: FC<CreateNewTaskProps> = ({ onCreateTask }) => {
   const [task, setTask] = useState<string>('');
-  const inputWidth = useSharedValue<number>(LAYOUT_WIDTH_WITHOUT_PADDING);
-  const buttonLeftOffset = useSharedValue<number>(LAYOUT_PADDING_HORIZONTAL);
+  const inputWidth = useSharedValue<number>(1);
+  const buttonLeftOffset = useSharedValue<number>(1);
 
   useLayoutEffect(() => {
     inputWidth.value = buttonLeftOffset.value = withSpring(task.length ? 0 : 1);
