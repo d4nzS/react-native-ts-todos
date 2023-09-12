@@ -1,8 +1,8 @@
 import { FC, useCallback } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, ListRenderItemInfo } from 'react-native';
 
 import TodoItem from './TodoItem/TodoItem';
-import { MIN_HEIGHT } from './TodoItem/constants';
+import { TODO_ITEM_HEIGHT } from './TodoItem/constants';
 
 interface TodoListProps {
   tasks: string[];
@@ -10,14 +10,20 @@ interface TodoListProps {
 }
 
 const TodoList: FC<TodoListProps> = ({ tasks, onDeleteTask }) => {
-  const renderTodoItem = useCallback(({ item, index }: { item: string, index: number }) => <TodoItem
+  const getTodoItemLayout = useCallback((_: ArrayLike<string> | null | undefined, index: number) => ({
+    length: TODO_ITEM_HEIGHT,
+    offset: TODO_ITEM_HEIGHT * index,
+    index
+  }), []);
+
+  const renderTodoItem = useCallback(({ item, index }: ListRenderItemInfo<string>) => <TodoItem
     task={item}
     onDeleteTask={onDeleteTask.bind(null, index)}
   />, []);
 
   return (
     <FlatList
-      getItemLayout={(_, index) => ({ length: MIN_HEIGHT, offset: MIN_HEIGHT * index, index })}
+      getItemLayout={getTodoItemLayout}
       keyExtractor={(_, index) => index.toString()}
       data={tasks}
       renderItem={renderTodoItem}

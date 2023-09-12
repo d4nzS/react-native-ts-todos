@@ -1,1 +1,1 @@
-export const MIN_HEIGHT = 54;
+export const TODO_ITEM_HEIGHT = 66;
