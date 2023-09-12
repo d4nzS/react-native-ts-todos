@@ -1,9 +1,9 @@
-import { FC, useEffect, useState } from 'react';
-import { DimensionValue, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import { FC, useLayoutEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 import Colors from '../../constants/colors';
-import { LAYOUT_PADDING_HORIZONTAL } from './constants';
+import { LAYOUT_PADDING_HORIZONTAL, LAYOUT_WIDTH_WITHOUT_PADDING } from './constants';
 
 interface CreateNewTaskProps {
   onCreateTask: (task: string) => void;
@@ -11,25 +11,27 @@ interface CreateNewTaskProps {
 
 const CreateNewTask: FC<CreateNewTaskProps> = ({ onCreateTask }) => {
   const [task, setTask] = useState<string>('');
-  const inputWidth = useSharedValue<DimensionValue>('100%');
-  const buttonLeftOffset = useSharedValue<DimensionValue>(LAYOUT_PADDING_HORIZONTAL);
+  const inputWidth = useSharedValue<number>(LAYOUT_WIDTH_WITHOUT_PADDING);
+  const buttonLeftOffset = useSharedValue<number>(LAYOUT_PADDING_HORIZONTAL);
 
-  useEffect(() => {
-    if (task.length) {
-      inputWidth.value = withSpring('75%');
-      buttonLeftOffset.value = withSpring(0);
-    } else {
-      inputWidth.value = withSpring('100%');
-      buttonLeftOffset.value = withSpring(LAYOUT_PADDING_HORIZONTAL);
-    }
+  useLayoutEffect(() => {
+    inputWidth.value = buttonLeftOffset.value = withSpring(task.length ? 0 : 1);
   }, [task]);
 
   const animatedInputStyles = useAnimatedStyle(() => ({
-    width: inputWidth.value
+    width: interpolate(
+      inputWidth.value,
+      [0, 1],
+      [0.75 * LAYOUT_WIDTH_WITHOUT_PADDING, LAYOUT_WIDTH_WITHOUT_PADDING]
+    )
   }));
 
   const animatedButtonStyles = useAnimatedStyle(() => ({
-    left: buttonLeftOffset.value
+    left: interpolate(
+      inputWidth.value,
+      [0, 1],
+      [0, LAYOUT_PADDING_HORIZONTAL]
+    )
   }));
 
   const changeTaskTextInputHandler = (text: string): void => {
